@@ -56,7 +56,7 @@
             <div>操作</div>
           </div>
           <div class="tbody">
-            <div v-for="s in filtered" :key="s.id" class="row" @dblclick="openEdit(s)">
+            <div v-for="s in paged" :key="s.id" class="row" @dblclick="openEdit(s)">
               <div class="cell title">
                 <div class="t">{{ s.title }}</div>
                 <div class="desc" v-if="s.description">{{ s.description }}</div>
@@ -74,6 +74,13 @@
               </div>
             </div>
           </div>
+        </div>
+        <div class="pager">
+          <button class="btn" @click="page = 1" :disabled="page<=1">« 首页</button>
+          <button class="btn" @click="page = Math.max(1, page-1)" :disabled="page<=1">‹ 上一页</button>
+          <span class="page-info">第 {{ page }} / {{ totalPages }} 页 · 每页 {{ pageSize }} 条 · 共 {{ filtered.length }} 条</span>
+          <button class="btn" @click="page = Math.min(totalPages, page+1)" :disabled="page>=totalPages">下一页 ›</button>
+          <button class="btn" @click="page = totalPages" :disabled="page>=totalPages">末页 »</button>
         </div>
       </div>
     </section>
@@ -147,7 +154,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import FancySelect from '../ui/FancySelect.vue';
 
 type Site = { id:string; title:string; url:string; description?:string; isPublic?:boolean; clicks?:number; category?:string };
@@ -304,6 +311,22 @@ const filtered = computed(()=>{
   }).sort((a,b)=> (b.clicks||0)-(a.clicks||0) || String(a.title||'').localeCompare(String(b.title||'')));
 });
 
+// pagination: 5 rows per page
+const pageSize = ref(5);
+const page = ref(1);
+const totalPages = computed(()=> Math.max(1, Math.ceil(filtered.value.length / pageSize.value)));
+const paged = computed(()=>{
+  const start = (page.value - 1) * pageSize.value;
+  return filtered.value.slice(start, start + pageSize.value);
+});
+// reset/clamp when filters change
+watch([q, cat], ()=>{ page.value = 1; });
+watch([filtered, pageSize], ()=>{
+  const tp = Math.max(1, Math.ceil(filtered.value.length / pageSize.value));
+  if(page.value > tp) page.value = tp;
+  if(page.value < 1) page.value = 1;
+}, { immediate: true });
+
 async function load(){
   error.value='';
   loadingList.value = true;
@@ -397,6 +420,10 @@ input::placeholder,textarea::placeholder{color:#808892}
 .badge.warn{background:rgba(234,88,12,.08);color:#fb923c;border-color:rgba(234,88,12,.25)}
 
 .empty{color:var(--muted);padding:16px}
+
+/* pagination */
+.pager{display:flex;gap:10px;align-items:center;justify-content:flex-end;margin-top:10px}
+.pager .page-info{color:var(--muted)}
 
 /* modal */
 .modal{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center}
