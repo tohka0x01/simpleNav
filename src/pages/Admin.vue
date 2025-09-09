@@ -423,13 +423,14 @@ input::placeholder,textarea::placeholder{color:#808892}
 
 /* admin key gate */
 .key-gate{position:fixed;inset:0;z-index:2000;display:grid;place-items:center;background:radial-gradient(60% 60% at 50% 40%, rgba(106,166,255,.15), transparent 60%), linear-gradient(180deg, rgba(0,0,0,.65), rgba(0,0,0,.65))}
-.key-card{width:min(520px,92vw);border:1px solid var(--border);border-radius:18px;background:linear-gradient(180deg, #141a26, #0e141c);box-shadow:0 30px 80px rgba(0,0,0,.5);padding:22px}
-.key-title{margin:0 0 6px;font-size:1.5rem}
-.key-sub{margin:0 0 14px;color:var(--muted)}
-.key-field{display:flex;align-items:center;gap:8px}
-.key-field input{flex:1;padding:12px 14px;border:1px solid var(--border);border-radius:12px;background:transparent;color:var(--text);outline:none}
-.icon-btn.small{padding:8px 10px;border-radius:10px}
-.key-actions{display:flex;align-items:center;gap:10px;margin-top:14px}
+.key-card{width:min(520px,92vw);border:1px solid var(--border);border-radius:18px;background:linear-gradient(180deg, #141a26, #0e141c);box-shadow:0 30px 80px rgba(0,0,0,.5);padding:22px;backdrop-filter:blur(10px)}
+.key-title{margin:0 0 6px;font-size:1.5rem;text-align:center}
+.key-sub{margin:0 0 14px;color:var(--muted);text-align:center}
+.key-field{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:6px}
+.key-field input{flex:0 1 360px;max-width:360px;width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:14px;background:rgba(255,255,255,.04);color:var(--text);outline:none;transition:border-color .2s ease, box-shadow .2s ease}
+.key-field input:focus{border-color:var(--accent-weak);box-shadow:0 0 0 3px rgba(99,102,241,.25)}
+.icon-btn.small{padding:10px;border-radius:12px}
+.key-actions{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:14px}
 </style>
 
 
