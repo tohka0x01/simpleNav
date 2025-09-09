@@ -1,0 +1,17 @@
+*{box-sizing:border-box}
+:root{
+  --bg:#000000;
+  --surface:#121720;
+  --surface-2:#0e141c;
+  --border:rgba(255,255,255,0.08);
+  --text:#e5e7eb;
+  --muted:#9aa4b2;
+  --accent:#6aa6ff;
+  --accent-weak:#3b6fd6;
+}
+body{margin:0;background:var(--bg);color:var(--text)}
+a{color:inherit}
+.container{max-width:1200px;margin:0 auto;position:relative;z-index:1}
+@media(max-width:768px){.header h1{font-size:2rem}}
+
+
