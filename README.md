@@ -1,4 +1,4 @@
-## Autoread — 部署到 Cloudflare Pages（Vue 3 + Functions + KV）
+## SimpleNav — 部署到 Cloudflare Pages（Vue 3 + Functions + KV）
 
 一个极简的导航站点：前端使用 Vite + Vue 3，后端使用 Cloudflare Pages Functions 提供 API，并通过 Cloudflare KV 存储站点与分类数据。
 

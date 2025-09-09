@@ -9,7 +9,9 @@
       </header>
       <router-view />
       <footer class="footer">
-        <p>© 2025 <a href="#" @click.prevent>My Navigation Homepage</a></p>
+        <p>© 2025 <a href="https://github.com/tohka0x01/simpleNav" target="_blank" rel="noopener noreferrer">
+          <span class="github-icon">💻</span> tohka0x01
+        </a></p>
       </footer>
     </div>
 
@@ -41,7 +43,7 @@
 import { ref, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 
-const title = 'My Navigation Homepage';
+const title = 'HOMEPAGE';
 const subtitle = 'Your personal gateway to the web';
 
 const router = useRouter();
@@ -109,8 +111,10 @@ const particleOptions = {
 .header h1{font-size:2.5rem;color:var(--text);font-weight:600;margin-bottom:10px}
 .subtitle{color:var(--muted);margin-top:10px}
 .footer{text-align:center;margin-top:60px;padding:20px;color:var(--muted);font-size:.9rem}
-.footer a{color:var(--muted);text-decoration:none}
-.footer a:hover{text-decoration:none}
+.footer a{color:var(--muted);text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:color 0.2s ease}
+.footer a:hover{color:var(--accent);text-decoration:none}
+.github-icon{font-size:1.1em;transition:transform 0.2s ease}
+.footer a:hover .github-icon{transform:scale(1.1)}
 .theme-toggle{display:none}
 
 .header{position:relative}
