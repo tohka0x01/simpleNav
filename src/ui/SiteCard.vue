@@ -66,8 +66,11 @@ function setupCanvas(){
   const canvas = cvs.value!;
   const parent = canvas.parentElement as HTMLElement;
   const rect = parent.getBoundingClientRect();
-  canvas.width = rect.width;
-  canvas.height = rect.height;
+  const { width, height } = rect;
+  canvas.width = Math.ceil(width);
+  canvas.height = Math.ceil(height);
+  canvas.style.width = `${width}px`;
+  canvas.style.height = `${height}px`;
   ctx = canvas.getContext('2d');
 }
 
@@ -75,14 +78,18 @@ function draw(){
   if(!ctx || !cvs.value) return;
   const canvas = cvs.value;
   ctx.clearRect(0,0,canvas.width,canvas.height);
-  const cols = Math.floor(canvas.width / (GRID_SIZE + SPACING));
-  const rows = Math.floor(canvas.height / (GRID_SIZE + SPACING));
+  const cell = GRID_SIZE + SPACING;
+  const cols = Math.max(0, Math.floor((canvas.width - GRID_SIZE) / cell));
+  const rows = Math.max(0, Math.floor((canvas.height - GRID_SIZE) / cell));
+  const offsetX = Math.max(0, Math.round((canvas.width - (cols * cell + GRID_SIZE)) / 2));
+  const offsetY = Math.max(0, Math.round((canvas.height - (rows * cell + GRID_SIZE)) / 2));
   const now = Date.now();
   particles = particles.filter(p => now - p.start < p.lifetime);
-  for(let i=1;i<rows-1;i++){
-    for(let j=1;j<cols-1;j++){
-      const x = j * (GRID_SIZE + SPACING);
-      const y = i * (GRID_SIZE + SPACING);
+  for(let i=0;i<=rows;i++){
+    for(let j=0;j<=cols;j++){
+      const x = offsetX + j * cell;
+      const y = offsetY + i * cell;
+      if(x > canvas.width - GRID_SIZE || y > canvas.height - GRID_SIZE) continue;
       const exists = particles.find(p=>p.x===x && p.y===y);
       if(!exists){
         particles.push({ x, y, start: now, lifetime: Math.random()*LIFETIME });
@@ -113,20 +120,23 @@ function handleOpen(){ emit('open', props.site); }
 
 function onEnter(){
   const canvas = cvs.value!;
+  const parent = canvas.parentElement as HTMLElement | null;
+  const rect = (parent || canvas).getBoundingClientRect();
+  const radius = Math.hypot(rect.width, rect.height);
   canvas.style.opacity = '1';
-  canvas.style.clipPath = 'circle(100% at 50% 50%)';
+  canvas.style.clipPath = `circle(${radius}px at 50% 50%)`;
   start();
 }
 function onLeave(){
   const canvas = cvs.value!;
   canvas.style.opacity = '0';
-  canvas.style.clipPath = 'circle(0 at 50% 70%)';
+  canvas.style.clipPath = 'circle(0px at 50% 70%)';
   stop();
 }
 
 function schedulePopoverShow(){
   if(popTimer){ clearTimeout(popTimer); }
-  popTimer = window.setTimeout(()=>{ showPopover.value = true; }, 1000);
+  popTimer = window.setTimeout(()=>{ showPopover.value = true; }, 300);
 }
 function hidePopover(){
   if(popTimer){ clearTimeout(popTimer); popTimer = null; }
@@ -181,7 +191,7 @@ watch(()=>props.site, ()=>{ initFavicon(); /* future per-site color */ }, { imme
 .card-wrap{position:relative}
 .card-wrap:hover{z-index:20}
 
-canvas{position:absolute;inset:0;opacity:0;clip-path:circle(0 at 50% 70%);transition:opacity .8s ease-in-out, clip-path .1s ease-in-out;transition-delay:0s,.4s}
+canvas{position:absolute;inset:0;opacity:0;clip-path:circle(0px at 50% 70%);transition:opacity .35s ease, clip-path .35s ease}
 .card{position:relative;overflow:hidden;background:linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);border:1px solid var(--border);border-radius:16px;padding:22px;display:block;color:inherit;text-decoration:none;transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease}
 .glow{position:absolute;inset:-1px;border-radius:16px;pointer-events:none;background:radial-gradient(120px 80px at var(--mx,50%) var(--my,50%), rgba(106,166,255,.18), transparent 40%);opacity:0;transition:opacity .3s ease}
 .card:hover .glow{opacity:1}

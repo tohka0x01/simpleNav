@@ -87,10 +87,15 @@ async function loadSites(force = false){
   }
 }
 
-async function onOpen(site:Site){
-  try{ await fetch('/api/sites/click', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ id: site.id }) }); }catch{}
-  window.open(site.url, '_blank', 'noopener');
+function onOpen(site:Site)
+{
+  const opened = window.open(site.url, '_blank');
+  if(opened){
+    opened.opener = null; // 确保新标签页无法访问当前页
+  }
+  fetch('/api/sites/click', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ id: site.id }) }).catch(()=>{});
 }
+
 
 watch(categories, (cs)=>{
   const names = cs.map(c=>c.name);
@@ -119,4 +124,6 @@ onBeforeUnmount(()=>{
   }
 });
 </script>
+
+
 
