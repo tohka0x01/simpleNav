@@ -8,10 +8,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import SearchBar from '../ui/SearchBar.vue';
 import CategoryTabs from '../ui/CategoryTabs.vue';
 import SitesGrid from '../ui/SitesGrid.vue';
+import { readCache, writeCache, CACHE_KEYS, CACHE_BUST_KEY } from '../utils/cache';
 
 type Site = { id:string; title:string; url:string; description?:string; clicks?:number; category?:string };
 type Category = { name: string; desc?: string };
@@ -41,16 +42,33 @@ function setActive(c:string){
   active.value = c;
 }
 
-async function loadCategories(){
+async function loadCategories(force = false){
+  const cached = readCache<Category[]>(CACHE_KEYS.categories);
+  if(cached && !force){
+    categories.value = cached;
+    return;
+  }
   try{
     const res = await fetch('/api/categories/list', { cache: 'no-store' });
     const data = await res.json();
     const list = Array.isArray(data?.categories) ? data.categories : [];
     categories.value = list.map((c:any)=>({ name: String(c?.name || c), desc: String(c?.desc || '') }));
-  }catch{ categories.value = []; }
+    writeCache(CACHE_KEYS.categories, categories.value);
+  }catch{
+    if(cached){
+      categories.value = cached;
+    }else{
+      categories.value = [];
+    }
+  }
 }
 
-async function loadSites(){
+async function loadSites(force = false){
+  const cached = readCache<Site[]>(CACHE_KEYS.sites);
+  if(cached && !force){
+    sites.value = cached;
+    return;
+  }
   try{
     const res = await fetch(`/api/sites/public`, { cache: 'no-store' });
     let list: Site[] = [];
@@ -59,8 +77,13 @@ async function loadSites(){
       list = Array.isArray(data.sites) ? data.sites : [];
     }
     sites.value = list;
+    writeCache(CACHE_KEYS.sites, sites.value);
   }catch{
-    sites.value = [];
+    if(cached){
+      sites.value = cached;
+    }else{
+      sites.value = [];
+    }
   }
 }
 
@@ -75,6 +98,25 @@ watch(categories, (cs)=>{
   if(!names.includes(active.value)) active.value = names[0];
 }, { immediate: true });
 
-onMounted(()=>{ loadCategories(); loadSites(); });
+function handleCacheBust(event: StorageEvent){
+  if(event.key === CACHE_BUST_KEY){
+    loadCategories(true);
+    loadSites(true);
+  }
+}
+
+onMounted(()=>{
+  if(typeof window !== 'undefined'){
+    window.addEventListener('storage', handleCacheBust);
+  }
+  loadCategories();
+  loadSites();
+});
+
+onBeforeUnmount(()=>{
+  if(typeof window !== 'undefined'){
+    window.removeEventListener('storage', handleCacheBust);
+  }
+});
 </script>
 
